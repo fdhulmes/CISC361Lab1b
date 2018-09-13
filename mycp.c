@@ -7,13 +7,13 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "mycph.h"
-#define MAX_SIZE 128
+#define MAX_SIZE 1
 
 extern int errno;
 
 int main(int argc, char *argv[]){
   if(argc != 3){
-    printf("Insufficient arguments. Exiting cp ...");
+    printf("Insufficient arguments. Exiting cp ...\n");
     return 0;
   }
   int accessRead = access(argv[1], F_OK);
@@ -25,15 +25,17 @@ int main(int argc, char *argv[]){
       return 0;
     }
     else{
-      printf("Not overwriting. Exiting cp ...");
+      printf("Not overwriting. Exiting cp ...\n");
       return 0;
     }
   }
   else if(accessRead == 0){
     // To Do: Read the file, create and write to new file
+    readAndWrite(argv[1], argv[2]);
+    return 0;
   }
   else{
-    printf("Read file does not exist. Exiting cp ...");
+    printf("Read file does not exist. Exiting cp ...\n");
     return 0;
   }
 
@@ -62,7 +64,7 @@ int readAndWrite(char *readfd, char *writefd){
     perror("ERROR: ");
     return 0;
   }
-  openWrite = open(writefd, O_WRONLY);
+  openWrite = open(writefd, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if(openWrite < 0){
     perror("ERROR: ");
     return 0;
@@ -84,9 +86,9 @@ int readAndWrite(char *readfd, char *writefd){
       }
     }
   }
-  printf("Finished copying");
+  printf("Finished copying\n");
   free(buffer);
-  close(readIn);
-  close(writeIn);
+  close(openRead);
+  close(openWrite);
   return 1;
 }
